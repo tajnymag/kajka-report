@@ -1,7 +1,9 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-
 import chrono from 'chrono-node/src/chrono';
+
+const FACEBOOK_URL_DESKTOP = 'https://www.facebook.com/';
+const FACEBOOK_URL_MOBILE = 'https://mobile.facebook.com/';
 
 function parsePostContent(contentString: string): {title: string; content: string} {
     let title = '';
@@ -25,7 +27,7 @@ function parseFacebookDate(dateString: string) {
 }
 
 async function getPageHTML(pageId: string) {
-    const res = await axios.get('https://mobile.facebook.com/' + pageId, {
+    const res = await axios.get(FACEBOOK_URL_MOBILE + pageId, {
         transformResponse: [(data) => { return data; }],
         headers: {
             'Accept-Language': 'en;q=0.5'
@@ -36,7 +38,9 @@ async function getPageHTML(pageId: string) {
 }
 
 function extractLink(document: Cheerio) {
-    return document.find('a:contains("Full Story")').attr('href');
+    const href = document.find('a:contains("Full Story")').attr('href');
+
+    return FACEBOOK_URL_DESKTOP + href;
 }
 
 export async function getPagePosts(pageId: string) {
