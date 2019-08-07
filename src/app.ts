@@ -14,7 +14,26 @@ let connection: Connection;
 
 app.get('/rss', async (req, res) => {
 	if (!connection) {
-		connection = await createConnection();
+		connection = await createConnection({
+			"type": "sqlite",
+			"database": ".data/db.sqlite",
+			"synchronize": true,
+			"logging": false,
+			"entities": [
+				"dist/entity/**/*.js"
+			],
+			"migrations": [
+				"src/migration/**/*.ts"
+			],
+			"subscribers": [
+				"src/subscriber/**/*.ts"
+			],
+			"cli": {
+				"entitiesDir": "src/entity",
+				"migrationsDir": "src/migration",
+				"subscribersDir": "src/subscriber"
+			}
+		});
 	}
 	const postRepository = connection.getRepository(Post);
 	const logRepository = connection.getRepository(Log);
