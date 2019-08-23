@@ -1,6 +1,7 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import chrono from 'chrono-node/src/chrono';
+import {subHours, subMinutes} from "date-fns";
 
 const FACEBOOK_URL_DESKTOP = 'https://www.facebook.com/';
 const FACEBOOK_URL_MOBILE = 'https://mobile.facebook.com/';
@@ -21,6 +22,28 @@ function parsePostContent(contentString: string): {title: string; content: strin
 }
 
 function parseFacebookDate(dateString: string) {
+    const extractedNumbers = dateString.match(/\d+/);
+
+    if (dateString.includes('hrs') || dateString.includes('hours')) {
+        if (!extractedNumbers || !extractedNumbers[0]) {
+            throw new Error('Could not parse time from string: ' + dateString);
+        }
+
+        const parsedHours = extractedNumbers[0];
+
+        return subHours(new Date(), Number(parsedHours));
+    }
+
+    if (dateString.includes('min')) {
+        if (!extractedNumbers || !extractedNumbers[0]) {
+            throw new Error('Could not parse time from string: ' + dateString);
+        }
+
+        const parsedMinutes = extractedNumbers[0];
+
+        return subMinutes(new Date(), Number(parsedMinutes));
+    }
+
     const parsedDate: Date = chrono.parseDate(dateString);
 
     return parsedDate;

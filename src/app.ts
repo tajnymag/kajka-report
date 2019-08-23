@@ -1,7 +1,9 @@
 import {Feed} from "feed";
 import {Connection, createConnection} from "typeorm";
 import {differenceInMinutes} from 'date-fns';
+
 import express from 'express';
+import 'express-async-errors';
 
 import {facebook} from "./news/facebook";
 
@@ -12,6 +14,12 @@ const app = express();
 
 let connection: Connection;
 
+app.use(function errorHandler (err, req, res, next) {
+		res.status(500);
+		res.render('error', { error: err });
+	}
+);
+
 app.get('/rss', async (req, res) => {
 	if (!connection) {
 		connection = await createConnection({
@@ -20,7 +28,7 @@ app.get('/rss', async (req, res) => {
 			"synchronize": true,
 			"logging": false,
 			"entities": [
-				"dist/entity/**/*.js"
+				"src/entity/**/*.ts"
 			],
 			"migrations": [
 				"src/migration/**/*.ts"
